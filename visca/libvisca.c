@@ -446,6 +446,23 @@ VISCA_set_zoom_value(VISCAInterface_t *iface, VISCACamera_t *camera, uint32_t zo
   return _VISCA_send_packet_with_reply(iface, camera, &packet);
 }
 
+VISCA_API uint32_t
+VISCA_set_zoom_value_without_reply(VISCAInterface_t *iface, VISCACamera_t *camera, uint32_t zoom)
+{
+  VISCAPacket_t packet;
+
+  _VISCA_init_packet(&packet);
+  _VISCA_append_byte(&packet, VISCA_COMMAND);
+  _VISCA_append_byte(&packet, VISCA_CATEGORY_CAMERA1);
+  _VISCA_append_byte(&packet, VISCA_ZOOM_VALUE);
+  _VISCA_append_byte(&packet, (zoom & 0xF000) >> 12);
+  _VISCA_append_byte(&packet, (zoom & 0x0F00) >>  8);
+  _VISCA_append_byte(&packet, (zoom & 0x00F0) >>  4);
+  _VISCA_append_byte(&packet, (zoom & 0x000F));
+
+  return _VISCA_send_packet(iface, camera, &packet);
+}
+
 
 VISCA_API uint32_t
 VISCA_set_zoom_and_focus_value(VISCAInterface_t *iface, VISCACamera_t *camera, uint32_t zoom, uint32_t focus)
@@ -467,6 +484,7 @@ VISCA_set_zoom_and_focus_value(VISCAInterface_t *iface, VISCACamera_t *camera, u
  
   return _VISCA_send_packet_with_reply(iface, camera, &packet);
 }
+
 
 
 VISCA_API uint32_t

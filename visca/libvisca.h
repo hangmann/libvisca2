@@ -614,6 +614,9 @@ VISCA_API uint32_t
 VISCA_set_zoom_value(VISCAInterface_t *iface, VISCACamera_t *camera, uint32_t zoom);
 
 VISCA_API uint32_t
+VISCA_set_zoom_value_without_reply(VISCAInterface_t *iface, VISCACamera_t *camera, uint32_t zoom);
+
+VISCA_API uint32_t
 VISCA_set_zoom_and_focus_value(VISCAInterface_t *iface, VISCACamera_t *camera, uint32_t zoom, uint32_t focus);
 
 VISCA_API uint32_t

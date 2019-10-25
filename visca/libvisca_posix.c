@@ -97,20 +97,28 @@ _VISCA_get_packet(VISCAInterface_t *iface)
 {
     int pos=0;
     int bytes_read;
+    int retry_count = 0;
+    const int MAX_TRIES = 20000;
 
     // wait for message
     ioctl(iface->port_fd, FIONREAD, &(iface->bytes));
     while (iface->bytes==0) {
-	usleep(0);
+	usleep(1);
 	ioctl(iface->port_fd, FIONREAD, &(iface->bytes));
+	retry_count++;
+	if (retry_count > MAX_TRIES) return VISCA_RESPONSE_ERROR;
     }
+
+    retry_count = 0;
 
     // get octets one by one
     bytes_read=read(iface->port_fd, iface->ibuf, 1);
     while (iface->ibuf[pos]!=VISCA_TERMINATOR) {
 	pos++;
 	bytes_read=read(iface->port_fd, &iface->ibuf[pos], 1);
-	usleep(0);
+	usleep(1);
+    retry_count++;
+    if (retry_count > MAX_TRIES) return VISCA_RESPONSE_ERROR;
     }
     iface->bytes=pos+1;
 
@@ -149,7 +157,7 @@ VISCA_open_serial(VISCAInterface_t *iface, const char *device_name)
       iface->options.c_cflag &= ~CSTOPB;     /*            */
       iface->options.c_cflag &= ~CSIZE;      /* 8bit       */
       iface->options.c_cflag |= CS8;         /*            */
-      iface->options.c_cflag &= ~CRTSCTS;    /* No hdw ctl */
+      iface->options.c_cflag &= ~020000000000;    /* No hdw ctl */
 
       /* local flags */
       iface->options.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG); /* raw input */
