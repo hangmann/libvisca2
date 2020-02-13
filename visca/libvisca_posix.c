@@ -24,6 +24,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <unistd.h>
+#include <stdio.h>
 #include <sys/ioctl.h>
 
 /* implemented in libvisca.c
@@ -98,16 +99,20 @@ _VISCA_get_packet(VISCAInterface_t *iface)
     int pos=0;
     int bytes_read;
     int retry_count = 0;
-    const int MAX_TRIES = 20000;
+    const int MAX_TRIES = 1000;
 
-    // wait for message
-    ioctl(iface->port_fd, FIONREAD, &(iface->bytes));
-    while (iface->bytes==0) {
-	usleep(1);
-	ioctl(iface->port_fd, FIONREAD, &(iface->bytes));
-	retry_count++;
-	if (retry_count > MAX_TRIES) return VISCA_RESPONSE_ERROR;
-    }
+    do {
+        printf("VISCA Camera Library: Trying to read - approach %d\n", retry_count + 1);
+	    // wait for message
+	    ioctl(iface->port_fd, FIONREAD, &(iface->bytes));
+        usleep(10000);
+	    retry_count++;
+	    if (retry_count > MAX_TRIES) {
+
+	        printf("VISCA Camera Library: Reading Failed after %d tries\n", retry_count + 1);
+	        return VISCA_RESPONSE_ERROR;
+	    }
+    } while (iface->bytes==0);
 
     retry_count = 0;
 
